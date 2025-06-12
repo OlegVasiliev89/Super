@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 /**
  * Service for sending email notifications to users.
  */
-@Service // Marks this class as a Spring service component.
+@Service
 public class EmailSenderService {
 
     @Autowired

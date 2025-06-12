@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * Extends JpaRepository to provide standard CRUD (Create, Read, Update, Delete)
  */
 @Repository
-public interface AppRepository extends JpaRepository<Request, Integer> {
+public interface ProductRequestRepository extends JpaRepository<Request, Integer> {
 }
