@@ -45,16 +45,27 @@ Navigate to the Project Directory:
 cd Super
 
 Open in IntelliJ IDEA:
+
 Open IntelliJ IDEA.
+
 Select File > Open... and navigate to the Super directory you just cloned.
+
 IntelliJ IDEA should recognize it as a Maven, and import the necessary dependencies automatically.
+
 Run the Backend Application:
+
 Once the project is loaded and indexed in IntelliJ IDEA, locate the main application class. This is typically found in src/main/java/com/project/SuperC and will contain the main method with SpringApplication.run(...).
+
 Right-click on this file in the project explorer.
-Select Run 'YourApplicationNameApplication'.
+
+Select Run 'SuperCApplication.java'.
+
 The Spring Boot application server will start, usually on port 8080. You'll see logs in the IntelliJ console indicating that the application has started successfully.
+
 Access the Frontend:
+
 Once the backend is running, open your preferred web browser.
+
 Navigate to: http://localhost:8080/
 
 ---
