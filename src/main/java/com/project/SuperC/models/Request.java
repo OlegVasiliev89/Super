@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
 
-import lombok.Data; // Import for Lombok annotations to reduce boilerplate code
+import lombok.Data;
 
 /**
  * Represents a user's price tracking request for a product.
@@ -22,7 +22,7 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = true, nullable = false) // Configures column properties for email.
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String productNumber;

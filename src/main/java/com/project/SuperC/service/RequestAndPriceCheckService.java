@@ -22,17 +22,12 @@ public class RequestAndPriceCheckService {
         this.dailyPriceChecker = dailyPriceChecker;
     }
 
-    /**
-     * Saves a new price tracking request to the database.
-     */
     public Request signUserEntryToDB(Request request){
         productRequestRepository.save(request);
         return request;
     }
 
-    /**
-     * Retrieves all price tracking requests from the database and initiates the daily price check.
-     */
+
     public List<Request> getProductNumbersAndMaxPricesFromDB(){
         List<Request> returnedList = productRequestRepository.findAll();
         System.out.println("Fetched requests from DB: " + returnedList);

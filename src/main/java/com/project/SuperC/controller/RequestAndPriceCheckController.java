@@ -14,7 +14,7 @@
      * REST Controller for handling API requests related to price tracking.
      * Exposes endpoints for adding new price tracking requests and triggering daily price checks.
      */
-    @RestController // Marks this class as a REST controller, combining @Controller and @ResponseBody.
+    @RestController
     @Slf4j
     @AllArgsConstructor
     @RequestMapping("/app")

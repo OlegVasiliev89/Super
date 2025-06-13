@@ -44,7 +44,6 @@ public class DailyPriceChecker {
         int count = 0; // Simple counter for logging purposes.
 
         for (Request item : sqlList) {
-            // Construct the URL for searching the product on Super C's website.
             String url = "https://www.superc.ca/en/search?filter=" + item.getProductNumber();
 
             try {
