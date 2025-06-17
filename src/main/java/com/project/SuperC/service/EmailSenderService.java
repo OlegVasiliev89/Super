@@ -19,7 +19,7 @@ public class EmailSenderService {
      *
      * @param toEmail The recipient's email address.
      * @param subject The subject line of the email.
-     * @param price The price to be included in the email body (e.g., current product price).
+     * @param price The price to be included in the email body.
      */
     public void emailNotificationSender(String toEmail,
                                         String subject,

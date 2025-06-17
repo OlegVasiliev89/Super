@@ -36,6 +36,8 @@ public class DailyPriceChecker {
      * Fetches current prices for a list of requested products from the Super C website.
      * If a product's current price is less than or equal to the user's desired maximum price,
      * an email notification is sent to the user.
+     * @param sqlList a {@link List} of {@link Request} objects.
+     * @throws IOException if an I/O error occurs
      */
     public void priceFetcher(List<Request> sqlList) {
 
