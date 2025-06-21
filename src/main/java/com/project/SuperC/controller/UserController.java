@@ -19,7 +19,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register") // Corrected typo and added leading slash for clarity
+    @PostMapping("/register")
     public ResponseEntity <User> addNewUser(@RequestBody User user){
         User createdUser = userService.addUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);

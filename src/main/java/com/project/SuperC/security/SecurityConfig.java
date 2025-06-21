@@ -27,9 +27,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
 
-                        // Option 2 (Better): Use an Ant-style path to cover both and future sub-paths
-                        .requestMatchers("/register/**").permitAll() // This will match /register, /register/, /register/something
-                        .requestMatchers("/login").permitAll() // Keep this if you're using /login
+                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

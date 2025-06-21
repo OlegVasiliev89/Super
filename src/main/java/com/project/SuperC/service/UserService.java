@@ -6,14 +6,13 @@ import org.springframework.security.crypto.password.PasswordEncoder; // Only nee
 import org.springframework.stereotype.Service; // Changed from @Component to @Service for semantic clarity
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Service // Use @Service for service classes
+@Service
 public class UserService {
 
-    // Only need the interface here, as SecurityConfig provides the BCryptPasswordEncoder bean
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
-    @Autowired // @AllArgsConstructor from Lombok would also work
+    @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
