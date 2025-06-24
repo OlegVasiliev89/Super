@@ -21,9 +21,9 @@ public class EmailSenderService {
      * @param subject The subject line of the email.
      * @param price The price to be included in the email body.
      */
-    public void emailNotificationSender(String toEmail,
-                                        String subject,
-                                        float price){
+    public void sendNotificationsEmail(String toEmail,
+                                       String subject,
+                                       float price){
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setFrom("voleg239@gmail.com");
