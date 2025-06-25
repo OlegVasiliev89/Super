@@ -17,7 +17,7 @@ import lombok.Data; // Import lombok annotation to create getters and setters fo
  * @since 2025-06-07
  */
 @Entity // Marks this class as a JPA entity, to manage the class as a persistent class
-@Table(name = "superc") //TODO: Rename the table in Supabase to PriceTrackingRequests
+@Table(name = "price_tracking_requests") //TODO: Rename the table in Supabase to PriceTrackingRequests
 @Data
 public class PriceTrackingRequest {
     /**
