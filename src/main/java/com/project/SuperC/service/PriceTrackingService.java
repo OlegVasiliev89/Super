@@ -1,60 +1,57 @@
 package com.project.SuperC.service;
 
-import com.project.SuperC.models.DailyPriceChecker;
 import com.project.SuperC.models.PriceTrackingRequest;
+import com.project.SuperC.models.User;
 import com.project.SuperC.repository.ProductRequestRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
  * Service layer component for handling business logic related to price tracking requests.
  */
-@Component
+@Service
+@AllArgsConstructor
+@Slf4j
 public class PriceTrackingService {
-    /**
-     * Repository to perform CRUD operations on the DB
-     * Injected via constructor for dependency management
-     */
+
     private final ProductRequestRepository productRequestRepository;
-    /**
-     * A component used with the list of Requests to start the price comparison process
-     */
-    private final DailyPriceChecker dailyPriceChecker;
+    private final DailyPriceChecker dailyPriceChecker; // Assuming this is now in service package
 
     /**
-     * A constructor that take the injected productRequestRepository and dailyPriceChecker
-     * @param productRequestRepository the object to interact with the DB
-     * @param dailyPriceChecker the object to connect requests from the DB and send them further into checking
-     *                          if they are below the threshold and users should be notified
+     * The method to add new requests into the DB, associating them with an authenticated user.
+     * The user's email is implicitly known through the associated User object.
+     *
+     * @param priceTrackingRequest An object created with each user submission (e.g., containing productNumber and maxPrice).
+     * @param user The authenticated {@link User} object to associate with this request.
+     * @return Returns the saved {@link PriceTrackingRequest} object as confirmation of its addition to the DB.
      */
-    @Autowired
-    public PriceTrackingService(ProductRequestRepository productRequestRepository, DailyPriceChecker dailyPriceChecker) {
-        this.productRequestRepository = productRequestRepository;
-        this.dailyPriceChecker = dailyPriceChecker;
-    }
-
-    /**
-     * The method to add new requets into the DB
-     * @param priceTrackingRequest an object created with each user submission
-     * @return returns the object as confirmation of the request getting added into the DB
-     */
-    public PriceTrackingRequest signUserEntryToDB(PriceTrackingRequest priceTrackingRequest){
-        productRequestRepository.save(priceTrackingRequest);
-        return priceTrackingRequest;
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public PriceTrackingRequest createPriceTrackingRequest(PriceTrackingRequest priceTrackingRequest, User user){
+        priceTrackingRequest.setUser(user);
+        log.info("Saving new price tracking request for user {}: {}", user.getEmail(), priceTrackingRequest);
+        return productRequestRepository.save(priceTrackingRequest);
     }
 
     /**
      * Find all the requests from the DB, makes it into a list so the list can be sent into
      * the {@link DailyPriceChecker} further to process into sending notifications on price alerts via email
-     * @return returns a list of requests that were below the price threshold
+     * @return returns a list of {@link PriceTrackingRequest} entities. The mapping to DTOs will happen in the controller.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     public List<PriceTrackingRequest> getProductNumbersAndMaxPricesFromDB(){
         List<PriceTrackingRequest> returnedList = productRequestRepository.findAll();
-        System.out.println("Fetched requests from DB: " + returnedList);
-
+        log.info("Fetched requests from DB (entities): {}", returnedList.size());
         dailyPriceChecker.fetchPrices(returnedList);
-
         return returnedList;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public List<PriceTrackingRequest> getUserPriceTrackingRequests(User user) {
+        log.info("Fetching price tracking requests for user: {}", user.getEmail());
+        return productRequestRepository.findByUser(user);
     }
 }
