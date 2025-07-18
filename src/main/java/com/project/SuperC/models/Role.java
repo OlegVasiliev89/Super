@@ -1,6 +1,13 @@
+/**
+ * Represents a user role entity in the database.
+ * This entity defines the different roles that can be assigned to users,
+ * such as ADMIN or USER, controlling their permissions and access levels
+ * within the application.
+ */
 package com.project.SuperC.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,17 +15,16 @@ import lombok.NoArgsConstructor;
 @Table(name = "roles")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, unique = true, nullable = false)
+    @Column(length = 20)
     private RoleName name;
 
-    public Role(RoleName name) {
-
-        this.name = name;
-    }
 }

@@ -1,61 +1,68 @@
+/**
+ * REST controller for handling user dashboard related requests.
+ * This class provides endpoints for retrieving data specific to an authenticated user's dashboard,
+ * such as their products.
+ * All endpoints are mapped under the "/api/user/dashboard" base path.
+ */
 package com.project.SuperC.controller;
 
-import com.project.SuperC.models.PriceTrackingRequest;
-import com.project.SuperC.models.User;
-import com.project.SuperC.repository.UserRepository;
-import com.project.SuperC.security.UserPrincipal;
-import com.project.SuperC.service.UserProductService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.project.SuperC.security.UserDetailsImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/user/dashboard")
-@AllArgsConstructor
-@Slf4j
 public class UserDashboardController {
 
-    private final UserProductService userProductService;
-    private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(UserDashboardController.class);
 
     /**
-     * Retrieves all price tracking requests for the currently authenticated user.
-     * Requires the user to be authenticated.
-     *
-     * @param userPrincipal The authenticated UserPrincipal object, injected by Spring Security via @AuthenticationPrincipal.
-     * @return A ResponseEntity containing a list of PriceTrackingRequest objects.
+     * Handles requests to retrieve products associated with the authenticated user.
+     * This endpoint extracts the authenticated user's ID from the security context
+     * and returns a success message.
+     * @return A {@link ResponseEntity} indicating the outcome of the request.
      */
     @GetMapping("/products")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<PriceTrackingRequest>> getUserProducts(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<String> getUserProducts() {
+        logger.info("Received request for user products.");
 
-        if (userPrincipal == null) {
-            log.warn("Attempt to access user dashboard without authenticated user. userPrincipal is null.");
-            return ResponseEntity.status(401).build();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            logger.error("Authentication object is NULL in SecurityContextHolder.");
+            return ResponseEntity.status(401).body("User not authenticated.");
         }
 
-        User currentUser = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> {
-                    log.error("Authenticated user with ID {} not found in database for dashboard!", userPrincipal.getId());
-                    return new UsernameNotFoundException("Authenticated user not found!");
-                });
+        Object principal = authentication.getPrincipal();
+        logger.info("Principal from SecurityContextHolder.getAuthentication().getPrincipal(): {}", principal);
 
-        log.info("Fetching products for user: {}", currentUser.getEmail());
-        List<PriceTrackingRequest> userProducts = userProductService.getUserPriceTrackingRequests(currentUser.getId());
-
-        if (userProducts.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        UserDetailsImpl userDetails = null;
+        if (principal instanceof UserDetailsImpl) {
+            userDetails = (UserDetailsImpl) principal;
+            logger.info("Successfully cast principal to UserDetailsImpl.");
+            logger.info("UserDetailsImpl from SecurityContextHolder - ID: {}", userDetails.getId());
+            logger.info("UserDetailsImpl from SecurityContextHolder - Username: {}", userDetails.getUsername());
+            logger.info("UserDetailsImpl from SecurityContextHolder - Authorities: {}", userDetails.getAuthorities());
+        } else if (principal != null) {
+            logger.error("Principal is not an instance of UserDetailsImpl. Actual type: {}", principal.getClass().getName());
+            return ResponseEntity.status(401).body("Authentication principal is not of expected type.");
+        } else {
+            logger.error("Principal from SecurityContextHolder is NULL.");
+            return ResponseEntity.status(401).body("Authentication principal is null.");
         }
-        return ResponseEntity.ok(userProducts);
+
+
+        if (userDetails.getId() == null) {
+            logger.error("Error: userDetails.getId() is NULL for user: {}", userDetails.getUsername());
+            return ResponseEntity.status(401).body("User ID not found in authentication context.");
+        }
+
+        return ResponseEntity.ok("Successfully retrieved products for user ID: " + userDetails.getId());
     }
-
 }

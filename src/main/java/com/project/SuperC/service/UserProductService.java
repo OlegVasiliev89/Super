@@ -23,7 +23,6 @@ public class UserProductService {
      */
     @Transactional(readOnly = true)
     public List<PriceTrackingRequest> getUserPriceTrackingRequests(Long userId) {
-        return priceTrackingRequestRepository.findByUser_Id(userId);
+        return priceTrackingRequestRepository.findByUserId(userId);
     }
-
 }

@@ -13,6 +13,12 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Component that initializes essential data in the database upon application startup.
+ * This class implements {@link CommandLineRunner}, meaning its {@code run} method
+ * will be executed once the Spring application context is fully loaded.
+ * It's primarily used to ensure that default roles and an initial admin user exist.
+ */
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -20,19 +26,39 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Constructs a DataInitializer with necessary repositories and password encoder.
+     * Spring's dependency injection automatically provides these beans.
+     *
+     * @param roleRepository The repository for managing {@link Role} entities.
+     * @param userRepository The repository for managing {@link User} entities.
+     * @param passwordEncoder The encoder used for hashing user passwords.
+     */
     public DataInitializer(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Callback method executed after the application context is loaded.
+     * This method orchestrates the initialization of roles and the admin user.
+     *
+     * @param args Command line arguments (not used in this implementation).
+     * @throws Exception If an error occurs during data initialization.
+     */
     @Override
     public void run(String... args) throws Exception {
         initializeRoles();
         initializeAdminUser();
     }
 
+    /**
+     * Initializes default application roles (ROLE_USER and ROLE_ADMIN) if they do not already exist in the database.
+     * This ensures that the foundational roles required for user authentication and authorization are present.
+     */
     private void initializeRoles() {
+        // Check if ROLE_USER exists, create if not
         Optional<Role> userRoleOptional = roleRepository.findByName(RoleName.ROLE_USER);
         if (userRoleOptional.isEmpty()) {
             Role userRole = new Role();
@@ -50,6 +76,14 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
+    /**
+     * Initializes a default administrator user ("admin@example.com") if one does not already exist.
+     * This method also assigns the ROLE_ADMIN to the newly created user.
+     *
+     * <p><b>Security Note:</b> The password is currently an empty string after encoding.
+     * For production environments, this should be replaced with a strong, securely managed password
+     * or a mechanism for the administrator to set their password upon first login.</p>
+     */
     private void initializeAdminUser() {
         if (userRepository.findByEmail("admin@example.com").isEmpty()) {
             User adminUser = new User();

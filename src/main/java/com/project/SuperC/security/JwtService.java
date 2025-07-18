@@ -55,7 +55,7 @@ public class JwtService {
 
     /**
      * Generates a JWT token for a given UserDetails object.
-     * This method creates a token with default claims (subject and issued/expiration dates).
+     * This method creates a token with default claims.
      *
      * @param userDetails The UserDetails object of UserPrincipal for whom to generate the token.
      * @return The generated JWT token string.

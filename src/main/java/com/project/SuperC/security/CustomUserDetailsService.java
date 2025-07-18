@@ -1,51 +1,56 @@
+/**
+ * This service is responsible for loading user-specific data during the authentication process.
+ * It retrieves user details from the database using the {@link UserRepository}
+ * and constructs a {@link UserDetails} object for Spring Security.
+ */
 package com.project.SuperC.security;
 
 import com.project.SuperC.models.User;
 import com.project.SuperC.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-/**
- * Custom implementation of Spring Security's UserDetailsService.
- * This service is responsible for loading user-specific data during authentication.
- * It fetches user details from the UserRepository and constructs a UserDetails object
- */
 @Service
-@AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
     private final UserRepository userRepository;
 
     /**
-     * Locates the user based on the email.
-     * @param email The email identifying the user whose data is required.
-     * @return A fully populated user record (UserPrincipal instance).
-     * @throws UsernameNotFoundException if the user could not be found or the user has no GrantedAuthority.
+     * Constructs a CustomUserDetailsService with the necessary UserRepository.
+     *
+     * @param userRepository The repository for accessing user data.
      */
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-        return UserPrincipal.create(user);
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
-     * Maps the roles from User entity to Spring Security's GrantedAuthority objects.
-     * @param roles A set of Role entities associated with the user.
-     * @return A collection of GrantedAuthority objects.
+     * Locates the user based on the username (email in this case).
+     * @param email The email address of the user.
+     * @return A fully populated user record (an instance of {@link UserDetailsImpl})
+     * @throws UsernameNotFoundException if the user could not be found or the user has no
+     * granted authorities.
      */
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(java.util.Set<com.project.SuperC.models.Role> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        logger.info("Attempting to load user by email: {}", email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        User user = userOptional.orElseThrow(() -> {
+            logger.error("User not found with email: {}", email);
+            return new UsernameNotFoundException("User not found with email: " + email);
+        });
+
+        logger.info("Successfully loaded user: {} from DB. User ID: {}", user.getEmail(), user.getId());
+
+        return UserDetailsImpl.build(user);
     }
 }
